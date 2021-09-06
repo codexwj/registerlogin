@@ -1,6 +1,7 @@
 package com.codejames.registerlogin.controller;
 
 import com.codejames.registerlogin.annotation.NoneAuth;
+import com.codejames.registerlogin.aop.ValidSignature;
 import com.codejames.registerlogin.config.SystemControllerLog;
 import com.codejames.registerlogin.dao.UserDetailsDao;
 import com.codejames.registerlogin.entity.UserDetails;
@@ -35,6 +36,7 @@ public class UserDetailsController {
 
 //    @NoneAuth
     @SystemControllerLog(description = "注册用户")
+    @ValidSignature
     @PostMapping(value = "register/user")
     public Object registerUser(@RequestBody Map<String, Object> req) throws Exception {
         String username = (String) req.get("username");
