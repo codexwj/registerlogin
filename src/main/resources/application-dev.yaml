@@ -1,0 +1,25 @@
+server:
+  port: 8082
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximumPoolSize: 2
+      minimumIdle: 1
+#    password: root
+    url: jdbc:mysql://localhost:3306/airapp?useUnicode=yes&characterEncoding=utf8&allowMultiQueries=true&useSSL=false
+    username: root
+  redis:
+    database: 10
+    host: localhost
+#    password: Midea@123
+    port: 6379
+
+logging:
+  level:
+    com.midea.ac: trace
+
+
+
+

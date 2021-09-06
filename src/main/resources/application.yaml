@@ -1,0 +1,50 @@
+spring:
+  application:
+    name: ac-airapp
+  profiles:
+    active: dev
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 20MB
+
+
+logging:
+  file: logs/airapp.log
+  max-history: 7
+  max-size: 100MB
+
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: UTC
+
+oss:
+  endpoint: oss-us-east-1.aliyuncs.com
+  accessKeyId: Oe0nDrOP2TRWits2
+  accessKeySecret: JPlNzmuf3BEzKOyauWURjBqaGaiZ1f
+  endpoint.out: oss-us-east-1.aliyuncs.com
+
+jetcache:
+  areaInCacheName: false
+  local:
+    default:
+      keyConvertor: fastjson
+      limit: 100
+      type: linkedhashmap
+  remote:
+    default:
+      host: localhost
+      keyConvertor: fastjson
+      poolConfig:
+        maxIdle: 20
+        maxTotal: 50
+        minIdle: 5
+      port: 6379
+      type: redis
+      valueDecoder: java
+      valueEncoder: java
+  statIntervalMinutes: 0
+
+mybatis:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
