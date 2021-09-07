@@ -18,10 +18,10 @@ import java.lang.reflect.Method;
 
 @Component
 public class LoginInterceptor extends HandlerInterceptorAdapter {
-    
+
     @Autowired
     private TokenHelper tokenHelper;
-    
+
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
             throws Exception {
@@ -30,25 +30,30 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
         if (!(handler instanceof HandlerMethod)) {
             return true;
         }
-        //如果被@NoneAuth注解代表不需要登录验证，直接通过
+        //如果被@NoneAuth注解代表需要登录验证
         HandlerMethod handlerMethod = (HandlerMethod) handler;
         Method method = handlerMethod.getMethod();
-        if(method.getAnnotation(NoneAuth.class) != null) return true;
-        //token验证
-        String authStr = request.getHeader(NormalConstant.AUTHORIZATION);
-        TokenModel model = tokenHelper.get(authStr);
-        
-        //验证通过
-        if(tokenHelper.check(model)) {
-            request.setAttribute(NormalConstant.CURRENT_USER_ID, model.getUserId());
+        if (method.getAnnotation(NoneAuth.class) != null) {
+
+            //token验证
+            String authStr = request.getHeader(NormalConstant.AUTHORIZATION);
+
+            TokenModel model = tokenHelper.get(authStr);
+
+            //验证通过
+            if (tokenHelper.check(model)) {
+                request.setAttribute(NormalConstant.CURRENT_USER_ID, model.getUserId());
+                return true;
+            }
+            //验证未通过
+            response.setCharacterEncoding("UTF-8");
+            response.setContentType("application/json; charset=utf-8");
+            response.getWriter().write(JsonUtils.obj2String(JsonData.buildError(401, "权限未认证")));
+            return false;
+        }else {
             return true;
         }
-        //验证未通过
-        response.setCharacterEncoding("UTF-8");
-        response.setContentType("application/json; charset=utf-8");
-        response.getWriter().write(JsonUtils.obj2String(JsonData.buildError(401, "权限未认证")));
-        return false;
     }
-    
+
 
 }

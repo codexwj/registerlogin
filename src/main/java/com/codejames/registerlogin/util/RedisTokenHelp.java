@@ -12,6 +12,11 @@ public class RedisTokenHelp implements TokenHelper {
     @Autowired
     private RedisClient redisClient;
 
+    /**
+     * 利用UUID，生成了token，并且设置了过去时间
+     * @param id
+     * @return
+     */
     @Override
     public TokenModel create(Integer id) {
         String token = UUID.randomUUID().toString().replace("-", "");
