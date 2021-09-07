@@ -1,7 +1,6 @@
 package com.codejames.registerlogin.controller;
 
 import com.codejames.registerlogin.aop.SystemControllerLog;
-import com.codejames.registerlogin.config.LoginChecker;
 import com.codejames.registerlogin.dao.UserDetailsDao;
 import com.codejames.registerlogin.entity.UserDetails;
 import com.codejames.registerlogin.entity.JsonData;
@@ -51,11 +50,13 @@ public class UserDetailsController {
         UserDetails userDetailsQuery = userDetailsDao.getUserDetails(username);
 
         if (userDetailsQuery == null) {
+
             userDetailsDao.registerUser(userDetails);
             return JsonData.buildSuccess(HttpStatusEnum.SUCCESS);
+
         } else {
             if (username.equals(userDetailsQuery.getUsername())) {
-                return JsonData.buildError(HttpStatusEnum.RE_REGISTRATION.getCode(),HttpStatusEnum.RE_REGISTRATION.getInfo());
+                return JsonData.buildError(HttpStatusEnum.RE_REGISTRATION.getCode(), HttpStatusEnum.RE_REGISTRATION.getInfo());
             }
         }
 
@@ -65,16 +66,19 @@ public class UserDetailsController {
 
     @PostMapping(value = "/query/userdetails")
     public Object getUserDetails(@RequestBody Map<String, Object> req) {
-        String username = (String) req.get("username");
-        if (username == null) {
+        Integer userId = (Integer) req.get("userId");
+
+        if (userId == null) {
             return JsonData.buildError(HttpStatusEnum.NOT_FOUND.getCode(), MessageConstant.USERNAME_OR_PASSWORD_ERROR);
         }
-        UserDetails userDetails = userDetailsDao.getUserDetails(username);
+
+        UserDetails userDetails = userDetailsDao.getUserDetailsById(userId);
 
         HashMap<String, Object> map = new HashMap<>();
         if (userDetails == null) {
             return JsonData.buildError(HttpStatusEnum.NOT_FOUND.getCode(), MessageConstant.USERNAME_OR_PASSWORD_ERROR);
         } else {
+            String username = (String) userDetails.getUsername();
             String phoneNumber = (String) userDetails.getPhoneNumber();
             String region = (String) userDetails.getRegion();
             map.put("username", username);
@@ -85,7 +89,7 @@ public class UserDetailsController {
     }
 
     @SystemControllerLog(description = "登入系统")
-    @PostMapping("/login1")
+    @PostMapping("/login")
     public Object login1(@RequestBody Map<String, Object> req) {
         String username = (String) req.get("username");
         String password = (String) req.get("password");
@@ -96,10 +100,10 @@ public class UserDetailsController {
         }
 
         TokenModel model = tokenHelper.create(user.getId());
-        if (model == null){
+        if (model == null) {
             log.info("登录失败");
             return null;
-        }else {
+        } else {
             log.info("登录成功");
             return JsonData.buildSuccess(model);
         }
@@ -110,27 +114,15 @@ public class UserDetailsController {
         /**
          * getHeader and getParameter testing
          */
-        String str = request.getHeader(NormalConstant.AUTHORIZATION);
-        String str1 = request.getParameter(NormalConstant.AUTHORIZATION);
-        log.info("str:{},str1:{}",str,str1);
-        Integer userId = (Integer) request.getAttribute(NormalConstant.CURRENT_USER_ID);
+
+        Integer userId = Integer.valueOf(request.getHeader(NormalConstant.CURRENT_USER_ID));
         System.out.println(userId);
         if (userId != null) {
             tokenHelper.delete(userId);
-            return JsonData.buildSuccess();
+            return JsonData.buildSuccess(userId);
+        } else {
+            return JsonData.buildError(HttpStatusEnum.FORBIDDEN.getCode(),HttpStatusEnum.FORBIDDEN.getInfo());
         }
-        return JsonData.buildError(300,"参数为空");
     }
 
-//    @AuthChecker
-//    @PostMapping(value = "/logout")
-//    public Object logout(@RequestBody Map<String,Object> request) {
-////        Integer userId = (Integer) request.getAttribute(NormalConstant.CURRENT_USER_ID);
-//        Integer userId = (Integer)request.get("userId");
-//        System.out.println(userId);
-//        if (userId != null) {
-//            tokenHelper.delete(userId);
-//        }
-//        return JsonData.buildSuccess();
-//    }
 }

@@ -4,12 +4,12 @@ public enum HttpStatusEnum {
 
     SUCCESS(200, "请求成功"), BAD_REQUEST(400, "报文语法错误"), UNAUTHORIZED(401, "用户未认证"),
     FORBIDDEN(403, "拒绝访问"), NOT_FOUND(404, "资源不存在"), INTERNAL_SERVER_ERROR(500, "服务器错误"),
-    RE_REGISTRATION(401,"重复注册");
+    RE_REGISTRATION(401,"重复注册"),LOGOUT_SUCCESS(200,"注销成功");
 
     private int code;
     private String info;
 
-    private HttpStatusEnum(int code, String info) {
+    HttpStatusEnum(int code, String info) {
         this.code = code;
         this.info = info;
     }

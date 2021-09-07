@@ -44,6 +44,10 @@ public class JsonData implements Serializable {
         return new JsonData(HttpStatusEnum.SUCCESS.getCode(), data, msg);
     }
 
+    public static JsonData logoutSuccess(Object data){
+        return new JsonData(200,data,"注销成功");
+    }
+
     /**
      * @param data 数据
      * @param code 状态码

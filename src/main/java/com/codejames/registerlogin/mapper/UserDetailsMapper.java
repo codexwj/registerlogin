@@ -15,4 +15,7 @@ public interface UserDetailsMapper {
     @Select("SELECT * FROM user_details WHERE username = #{username}")
     UserDetails getUserDetails(String username);
 
+    @Select("SELECT * FROM user_details WHERE id = #{userId}")
+    UserDetails getUserDetailsById(Integer userId);
+
 }

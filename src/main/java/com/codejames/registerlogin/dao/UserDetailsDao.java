@@ -18,4 +18,8 @@ public class UserDetailsDao {
     public void registerUser(UserDetails userDetails){
         userDetailsMapper.registerUser(userDetails);
     }
+
+    public UserDetails getUserDetailsById(Integer userId){
+        return userDetailsMapper.getUserDetailsById(userId);
+    }
 }

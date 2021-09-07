@@ -1,14 +1,12 @@
 package com.codejames.registerlogin.intercepter;
 
-import com.codejames.registerlogin.config.LoginChecker;
+import com.codejames.registerlogin.config.AuthChecker;
 import com.codejames.registerlogin.constant.NormalConstant;
 import com.codejames.registerlogin.entity.JsonData;
 import com.codejames.registerlogin.util.JsonUtils;
 import com.codejames.registerlogin.util.TokenHelper;
 import com.codejames.registerlogin.util.TokenModel;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
@@ -22,9 +20,8 @@ import java.lang.reflect.Method;
 
 @Component
 @Slf4j
-public class LoginInterceptor implements HandlerInterceptor {
+public class AuthInterceptor implements HandlerInterceptor {
 
-//    Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     TokenHelper tokenHelper;
@@ -32,7 +29,6 @@ public class LoginInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
             throws Exception {
-        System.out.println(11);
         // 如果不是映射到方法直接通过
         if (!(handler instanceof HandlerMethod)) {
             return true;
@@ -41,14 +37,12 @@ public class LoginInterceptor implements HandlerInterceptor {
         HandlerMethod handlerMethod = (HandlerMethod) handler;
         Method method = handlerMethod.getMethod();
 
-        if (method.getAnnotation(LoginChecker.class) != null || handlerMethod.getBeanType().getAnnotation(LoginChecker.class) != null)
+        if (method.getAnnotation(AuthChecker.class) != null || handlerMethod.getBeanType().getAnnotation(AuthChecker.class) != null)
         {
 
             //token验证
             String token = request.getHeader(NormalConstant.AUTHORIZATION);
-//            String authStr = request.getParameter(NormalConstant.AUTHORIZATION);
 
-            log.info("authStr:{}", token);
             TokenModel model = tokenHelper.get(token);
 
             //验证通过

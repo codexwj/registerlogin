@@ -7,5 +7,5 @@ import static java.lang.annotation.ElementType.METHOD;
 @Documented
 @Target(METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface LoginChecker {
+public @interface AuthChecker {
 }
