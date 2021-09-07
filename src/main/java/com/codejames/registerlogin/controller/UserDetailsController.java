@@ -1,6 +1,7 @@
 package com.codejames.registerlogin.controller;
 
 import com.codejames.registerlogin.aop.SystemControllerLog;
+import com.codejames.registerlogin.config.AuthChecker;
 import com.codejames.registerlogin.dao.UserDetailsDao;
 import com.codejames.registerlogin.entity.UserDetails;
 import com.codejames.registerlogin.entity.JsonData;
@@ -63,7 +64,7 @@ public class UserDetailsController {
         //return null statement
         return new JsonData();
     }
-
+    @AuthChecker
     @PostMapping(value = "/query/userdetails")
     public Object getUserDetails(@RequestBody Map<String, Object> req) {
         Integer userId = (Integer) req.get("userId");
@@ -108,7 +109,7 @@ public class UserDetailsController {
             return JsonData.buildSuccess(model);
         }
     }
-
+    @AuthChecker
     @PostMapping(value = "/logout")
     public Object logout(HttpServletRequest request) {
         /**
