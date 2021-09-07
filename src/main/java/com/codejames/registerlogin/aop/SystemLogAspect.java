@@ -1,7 +1,6 @@
 package com.codejames.registerlogin.aop;
 
 
-import com.codejames.registerlogin.config.SystemControllerLog;
 import com.codejames.registerlogin.entity.Log;
 import com.codejames.registerlogin.entity.UserDetails;
 import com.codejames.registerlogin.util.util.DateUtils;
@@ -59,7 +58,7 @@ public class SystemLogAspect {
 	/**
 	 * Controller层切点 注解拦截
 	 */
-	@Pointcut("@annotation(com.codejames.registerlogin.config.SystemControllerLog)")
+	@Pointcut("@annotation(com.codejames.registerlogin.aop.SystemControllerLog)")
 	public void controllerAspect(){}
 
 	/**

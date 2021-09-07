@@ -1,4 +1,4 @@
-package com.codejames.registerlogin.config;
+package com.codejames.registerlogin.aop;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

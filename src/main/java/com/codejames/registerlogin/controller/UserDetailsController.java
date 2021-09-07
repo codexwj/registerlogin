@@ -1,8 +1,7 @@
 package com.codejames.registerlogin.controller;
 
-import com.codejames.registerlogin.annotation.NoneAuth;
-import com.codejames.registerlogin.aop.ValidSignature;
-import com.codejames.registerlogin.config.SystemControllerLog;
+import com.codejames.registerlogin.aop.SystemControllerLog;
+import com.codejames.registerlogin.config.LoginChecker;
 import com.codejames.registerlogin.dao.UserDetailsDao;
 import com.codejames.registerlogin.entity.UserDetails;
 import com.codejames.registerlogin.entity.JsonData;
@@ -14,11 +13,9 @@ import com.codejames.registerlogin.util.TokenModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.xml.ws.handler.MessageContext;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,9 +31,7 @@ public class UserDetailsController {
     @Autowired
     private TokenHelper tokenHelper;
 
-//    @NoneAuth
     @SystemControllerLog(description = "注册用户")
-    @ValidSignature
     @PostMapping(value = "register/user")
     public Object registerUser(@RequestBody Map<String, Object> req) throws Exception {
         String username = (String) req.get("username");
@@ -68,29 +63,6 @@ public class UserDetailsController {
         return new JsonData();
     }
 
-    /* Origin edition
-        @PostMapping(value = "/query/userdetails")
-        public Outform getUserDetails(@RequestBody Map<String, Object> req) {
-            String username = (String) req.get("username");
-            if (username == null) {
-                return new Outform();
-            }
-            UserDetails userDetails = userDetailsDao.getUserDetails(username);
-
-            Map<String, Object> resultMap = new HashMap<>();
-            Outform outform = new Outform();
-            if (userDetails == null) {
-                outform.setErrCode("500");
-                outform.setErrMsg("user does not exists!!!");
-                outform.setResult(username);
-            } else {
-                outform.setErrCode("200");
-                outform.setErrMsg("query success!!!");
-                outform.setResult(userDetails);
-            }
-            return outform;
-        }
-    */
     @PostMapping(value = "/query/userdetails")
     public Object getUserDetails(@RequestBody Map<String, Object> req) {
         String username = (String) req.get("username");
@@ -124,27 +96,41 @@ public class UserDetailsController {
         }
 
         TokenModel model = tokenHelper.create(user.getId());
-        return JsonData.buildSuccess(model);
+        if (model == null){
+            log.info("登录失败");
+            return null;
+        }else {
+            log.info("登录成功");
+            return JsonData.buildSuccess(model);
+        }
     }
 
+    @PostMapping(value = "/logout")
+    public Object logout(HttpServletRequest request) {
+        /**
+         * getHeader and getParameter testing
+         */
+        String str = request.getHeader(NormalConstant.AUTHORIZATION);
+        String str1 = request.getParameter(NormalConstant.AUTHORIZATION);
+        log.info("str:{},str1:{}",str,str1);
+        Integer userId = (Integer) request.getAttribute(NormalConstant.CURRENT_USER_ID);
+        System.out.println(userId);
+        if (userId != null) {
+            tokenHelper.delete(userId);
+            return JsonData.buildSuccess();
+        }
+        return JsonData.buildError(300,"参数为空");
+    }
+
+//    @AuthChecker
 //    @PostMapping(value = "/logout")
-//    public Object logout(HttpServletRequest request) {
-//        Integer userId = (Integer) request.getAttribute(NormalConstant.CURRENT_USER_ID);
+//    public Object logout(@RequestBody Map<String,Object> request) {
+////        Integer userId = (Integer) request.getAttribute(NormalConstant.CURRENT_USER_ID);
+//        Integer userId = (Integer)request.get("userId");
 //        System.out.println(userId);
 //        if (userId != null) {
 //            tokenHelper.delete(userId);
 //        }
 //        return JsonData.buildSuccess();
 //    }
-
-    @PostMapping(value = "/logout")
-    public Object logout(@RequestBody Map<String,Object> request) {
-//        Integer userId = (Integer) request.getAttribute(NormalConstant.CURRENT_USER_ID);
-        Integer userId = (Integer)request.get("userId");
-        System.out.println(userId);
-        if (userId != null) {
-            tokenHelper.delete(userId);
-        }
-        return JsonData.buildSuccess();
-    }
 }
