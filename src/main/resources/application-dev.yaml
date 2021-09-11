@@ -13,12 +13,11 @@ spring:
   redis:
     database: 10
     host: localhost
-#    password: Midea@123
     port: 6379
 
 logging:
   level:
-    com.midea.ac: trace
+    com.codejames: trace
 
 
 
