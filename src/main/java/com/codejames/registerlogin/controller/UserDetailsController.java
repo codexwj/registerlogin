@@ -10,12 +10,16 @@ import com.codejames.registerlogin.constant.MessageConstant;
 import com.codejames.registerlogin.constant.NormalConstant;
 import com.codejames.registerlogin.util.TokenHelper;
 import com.codejames.registerlogin.util.TokenModel;
+import com.codejames.registerlogin.util.util.JwtUtils;
+import io.jsonwebtoken.Claims;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.print.DocFlavor;
 import javax.servlet.http.HttpServletRequest;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,6 +34,9 @@ public class UserDetailsController {
 
     @Autowired
     private TokenHelper tokenHelper;
+
+    @Autowired
+    private JwtUtils jwtUtils;
 
     @SystemControllerLog(description = "注册用户")
     @PostMapping(value = "register/user")
@@ -64,16 +71,17 @@ public class UserDetailsController {
         //return null statement
         return new JsonData();
     }
-    @AuthChecker
+//    @AuthChecker
     @PostMapping(value = "/query/userdetails")
-    public Object getUserDetails(@RequestBody Map<String, Object> req) {
-        Integer userId = (Integer) req.get("userId");
+    public Object getUserDetails(@RequestBody Map<String, Object> body, HttpServletRequest request) {
+        String userId = (String) request.getAttribute("userId");
+        log.info("UserId:{}",userId);
 
         if (userId == null) {
             return JsonData.buildError(HttpStatusEnum.NOT_FOUND.getCode(), MessageConstant.USERNAME_OR_PASSWORD_ERROR);
         }
 
-        UserDetails userDetails = userDetailsDao.getUserDetailsById(userId);
+        UserDetails userDetails = userDetailsDao.getUserDetailsById(Integer.valueOf(userId));
 
         HashMap<String, Object> map = new HashMap<>();
         if (userDetails == null) {
@@ -100,7 +108,9 @@ public class UserDetailsController {
             return JsonData.buildError(HttpStatusEnum.NOT_FOUND.getCode(), MessageConstant.USERNAME_OR_PASSWORD_ERROR);
         }
 
-        TokenModel model = tokenHelper.create(user.getId());
+//        TokenModel model = tokenHelper.create(user.getId());
+        String generateToken = jwtUtils.generateToken(String.valueOf(user.getId()));
+        TokenModel model = new TokenModel(user.getId(),generateToken);
         if (model == null) {
             log.info("登录失败");
             return null;
@@ -109,19 +119,27 @@ public class UserDetailsController {
             return JsonData.buildSuccess(model);
         }
     }
-    @AuthChecker
+//    @AuthChecker
     @PostMapping(value = "/logout")
     public Object logout(HttpServletRequest request) {
         /**
          * getHeader and getParameter testing
          */
 
-        String token = request.getHeader(NormalConstant.AUTHORIZATION);
-        TokenModel model = tokenHelper.get(token);
-        Integer userId = model.getUserId();
+        String token = request.getHeader("JWT");
+        Claims claims = jwtUtils.getClaimsByToken(token);
+        Date expiration = new Date();
+        boolean tokenExpired = jwtUtils.isTokenExpired(expiration);
+
+        log.info("The tokenExpired is real :{}",tokenExpired);
+        String subject = claims.getSubject();
+        if (subject == null){
+            log.info("userId is does not exist!");
+            return false;
+        }
+        String userId =(String) request.getAttribute("userId");
         System.out.println(userId);
         if (userId != null) {
-            tokenHelper.delete(userId);
             return JsonData.buildSuccess(userId);
         } else {
             return JsonData.buildError(HttpStatusEnum.FORBIDDEN.getCode(),HttpStatusEnum.FORBIDDEN.getInfo());
